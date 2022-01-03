@@ -26,7 +26,6 @@ paddle支持两种混合精度训练模式：AMP和pure fp16，用户可以方�
 <div  align="center">  
 <img src="./imgs/amp_arch.png" width = "600"  align=center />  
 </div>  
-
   
 通常半精度浮点数的表示范围远小于单精度浮点数的表示范围，在深度学习领域，参数、中间状态和梯度的值通常很小，因此以半精度浮点数参与计算时容易出现数值下溢，即接近零的值下溢为零值。为了避免这个问题，通常采用loss scaling机制。具体地讲，对loss乘以一个称为loss_scaling的值，根据链式法则，在反向传播过程中，梯度也等价于相应的乘以了loss_scaling的值，因此在参数更新时需要将梯度值相应地除以loss_scaling的值。
   
