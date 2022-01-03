@@ -8,7 +8,8 @@
 
 ## 一、半精度浮点类型 FP16
 首先介绍半精度（FP16）。如下图所示，半精度浮点数是一种相对较新的浮点类型，在计算机中使用2字节（16比特）存储。在IEEE 754-2008标准中，它亦被称作binary16。与计算中常用的单精度（FP32）和双精度（FP64）浮点类型相比，因为FP16表示范围和表示精度更低，因此FP16更适于在精度要求不高的场景中使用。 
-![图 1. 半精度和单精度数据示意图](./imgs/half_precision.png "半精度和单精度数据")
+<img src="./imgs/half_precision.png" width = "400"  align=center />  
+
   
 ## 二、NVIDIA GPU的FP16算力
 在使用相同的超参数下，混合精度训练使用半精度浮点（FP16）和单精度（FP32）浮点即可达到与使用纯单精度训练相同的准确率，并可加速模型的训练速度。这主要得益于英伟达推出的Volta及Turing架构GPU在使用FP16计算时具有如下特点：  
@@ -20,7 +21,8 @@ paddle支持两种混合精度训练模式：AMP和pure fp16，用户可以方�
   
 ### 1、AMP原理
 使用AMP训练时，模型参数使用单精度浮点格式存储，在实际计算时，模型参数从单精度浮点数转换为半精度浮点数参与前向计算，并得到半精度浮点数表示中间状态和模型的loss值，然后使用半精度浮点数计算梯度，并将参数对应的梯度转换为单精度浮点数格式后，更新模型参数。计算过程如下图所示。  
-![图 2. AMP训练过程](./imgs/amp_arch.png)  
+<img src="./imgs/amp_arch.png" width = "600"  align=center />  
+
   
 通常半精度浮点数的表示范围远小于单精度浮点数的表示范围，在深度学习领域，参数、中间状态和梯度的值通常很小，因此以半精度浮点数参与计算时容易出现数值下溢，即接近零的值下溢为零值。为了避免这个问题，通常采用loss scaling机制。具体地讲，对loss乘以一个称为loss_scaling的值，根据链式法则，在反向传播过程中，梯度也等价于相应的乘以了loss_scaling的值，因此在参数更新时需要将梯度值相应地除以loss_scaling的值。
   
@@ -31,6 +33,6 @@ paddle支持两种混合精度训练模式：AMP和pure fp16，用户可以方�
 ### 2、pure fp16原理
 
 pure fp16 相比 amp 存在一些区别，在pure fp16 模式下，网络模型几乎所有的参数都是 fp16 类型的数据（只有BatchNorm、LayerNorm的参数会保持fp32），与 AMP 的策略不同，pure fp16 在训练循环函数执行之前，即对网络进行改写，将网络的参数转换为 fp16 数据类型。在执行时，如下图所示，pure fp16策略保证无fp16的kernel执行在fp32下，保证用户指定的黑名单kernel执行在fp32下，保证batchnorm/layernorm这类特殊的op仅仅输入输出为fp16，并使用 master weight 策略在持有 fp16 类型参数的同时，再生成一份对应的 fp32 类型的参数，在 optimizer 更新过程中使用 fp32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure fp16也采用和 amp 一样的 loss scaling 策略。  
-![图 3. pure fp16执行时op kernel变化](./imgs/pure_fp16.png) 
+<img src="./imgs/pure_fp16.png" width = "400"  align=center />  
 
 
