@@ -4,7 +4,7 @@
 单精度浮点训练可以带来以下好处：  
 1. 减少对GPU显存的需求，或者在GPU显存保持不变的情况下，可以支持更大模型和更大的batch size；
 2. 降低显存读写的带宽压力；
-3. 加速GPU数学运算速度 (需要GPU支持[1])；按照NVIDA数据，GPU上FP16计算吞吐量是FP32的2~8倍[2]。  
+3. 加速GPU数学运算速度 (需要GPU支持[1](https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#tensorop))；按照NVIDA数据，GPU上FP16计算吞吐量是FP32的2~8倍[2](https://arxiv.org/abs/1710.03740)。  
 
 ## 一、半精度浮点类型 FP16
 首先介绍半精度（FP16）。如下图所示，半精度浮点数是一种相对较新的浮点类型，在计算机中使用2字节（16比特）存储。在IEEE 754-2008标准中，它亦被称作binary16。与计算中常用的单精度（FP32）和双精度（FP64）浮点类型相比，因为FP16表示范围和表示精度更低，因此FP16更适于在精度要求不高的场景中使用。  
