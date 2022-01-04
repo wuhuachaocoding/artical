@@ -35,7 +35,7 @@ paddle支持两种混合精度训练模式：AMP和pure fp16，用户可以方�
 
 ### 2、pure fp16原理
 
-pure fp16 相比 amp 存在一些区别，在pure fp16 模式下，网络模型几乎所有的参数都是 fp16 类型的数据（只有BatchNorm、LayerNorm的参数会保持fp32），与 AMP 的策略不同，pure fp16 在训练循环函数执行之前，即对网络进行改写，将网络的参数转换为 fp16 数据类型。在执行时，如下图所示，pure fp16策略保证无fp16的kernel执行在fp32下，保证用户指定的黑名单kernel执行在fp32下，保证batchnorm/layernorm这类特殊的op仅仅输入输出为fp16，并使用 master weight 策略在持有 fp16 类型参数的同时，再生成一份对应的 fp32 类型的参数，在 optimizer 更新过程中使用 fp32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure fp16也采用和 amp 一样的 loss scaling 策略。  
+pure fp16 相比 amp 存在一些区别，在pure fp16 模式下，网络模型几乎所有的参数都是 fp16 类型的数据（只有BatchNorm、LayerNorm的参数会保持fp32），与 AMP 的策略不同，pure fp16 在训练循环函数执行之前，即对网络进行改写，将网络的参数转换为 fp16 数据类型。在执行时，如下图所示，pure fp16策略保证无fp16的kernel执行在fp32下，保证用户指定的黑名单kernel执行在fp32下，保证batchnorm/layernorm这类特殊的op仅仅输入输出为fp16，并使用 master weight 策略在持有 fp16 类型参数的同时，再生成一份对应的 fp32 类型的参数，在 optimizer 更新过程中使用 fp32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure fp16也采用和 amp 一样的动态 loss scaling 策略。  
 <div  align="center">  
 <img src="./imgs/pure_fp16.png" width = "400"  align=center />  
 </div>
