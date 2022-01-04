@@ -41,7 +41,7 @@ pure fp16 相比 amp 存在一些区别，在pure fp16 模式下，网络模型�
 - 3.有fp16的kernel的op执行在fp16下
 - 4.保证batchnorm/layernorm这类特殊的op仅仅输入输出为fp16
   
-另外，pure fp16 使用 master weight 策略在持有 fp16 类型参数的同时，再生成一份对应的 fp32 类型的参数，在 optimizer 更新过程中使用 fp32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure fp16也采用和 amp 一样的动态 loss scaling 策略。  
+在训练的for循环中，amp模式下训练每轮都会调用cast保证相应的op执行在fp16下，而pure fp16模式会直接使相应的op执行在fp16下，无需额外的cast调度开销。另外，pure fp16 使用 master weight 策略在持有 fp16 类型参数的同时，再生成一份对应的 fp32 类型的参数，在 optimizer 更新过程中使用 fp32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure fp16也采用和 amp 一样的动态 loss scaling 策略。  
 <div  align="center">  
 <img src="./imgs/pure_fp16.png" width = "400"  align=center />  
 </div>
