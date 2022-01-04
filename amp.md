@@ -42,9 +42,9 @@ pure fp16 相比 amp 存在一些区别，在pure fp16 模式下，网络模型�
 
 ## 四、使用飞桨框架实现混合精度训练
 使用飞桨框架提供的API，paddle.amp.auto_cast 和 paddle.amp.decorate 和 paddle.amp.GradScaler 能够实现混合精度训练，即在相关OP的计算中，根据一定的规则，自动选择FP16或FP32计算。飞桨同时支持 amp 和 pure fp16 两种模式：  
-  
 level=’O1‘：amp模式。  
 level=’O2‘：pure fp16模式。  
+  
 在飞桨框架中，使用混合精度训练，需要进行四个步骤：  
 - Step1： 定义 GradScaler ，用于缩放 loss 比例，避免浮点数下溢
 - Step2： 使用 decorate 在level=’O1‘模式下不做任何处理，无需调用该api，在level=’O2‘模式下，将网络参数从FP32转换为FP16
