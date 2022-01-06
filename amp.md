@@ -39,14 +39,14 @@ pure FP16 相比 AMP 存在一些区别，在pure FP16 模式下，网络模型�
 - 3.有FP16的kernel的op执行在FP16下
 - 4.保证batchnorm/layernorm这类特殊的op仅仅输入输出为FP16
   
-在训练的for循环中，amp模式下训练每轮都会调用cast保证相应的op执行在FP16下，而pure FP16模式会直接使相应的op执行在FP16下，无需额外的cast调度开销。另外，pure FP16 使用 master weight 策略在持有 FP16 类型参数的同时，再生成一份对应的 FP32 类型的参数，在 optimizer 更新过程中使用 FP32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure FP16也采用和 amp 一样的动态 loss scaling 策略。  
+在训练的for循环中，AMP模式下训练每轮都会调用cast保证相应的op执行在FP16下，而pure FP16模式会直接使相应的op执行在FP16下，无需额外的cast调度开销。另外，pure FP16 使用 master weight 策略在持有 FP16 类型参数的同时，再生成一份对应的 FP32 类型的参数，在 optimizer 更新过程中使用 FP32 类型进行更新，避免性能变差或是收敛变慢的问题。同样，pure FP16也采用和 AMP 一样的动态 loss scaling 策略。  
 <div  align="center">  
 <img src="./imgs/pure_fp16.png" width = "400"  align=center />  
 </div>
 
 ## 四、使用飞桨框架实现混合精度训练
-使用飞桨框架提供的API，paddle.amp.auto_cast 和 paddle.amp.decorate 和 paddle.amp.GradScaler 能够实现混合精度训练，即在相关OP的计算中，根据一定的规则，自动选择FP16或FP32计算。飞桨同时支持 amp 和 pure FP16 两种模式：  
-level=’O1‘：amp模式。  
+使用飞桨框架提供的动态图API，paddle.amp.auto_cast 和 paddle.amp.decorate 和 paddle.amp.GradScaler 能够实现混合精度训练，即在相关OP的计算中，根据一定的规则，自动选择FP16或FP32计算。飞桨同时支持 AMP 和 pure FP16 两种模式：  
+level=’O1‘：AMP模式。  
 level=’O2‘：pure FP16模式。  
   
 在飞桨框架中，使用混合精度训练，需要进行四个步骤：  
