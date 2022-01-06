@@ -29,7 +29,7 @@ FP16训练可以带来以下好处：
   
 然而，在模型训练过程中，选择合适的loss_scaling的值是个较大的挑战。因此，需要采用一种称为动态loss scaling的机制。用户只需要为loss_scaling设置一个初始值：init_loss_scaling。在训练过程中，会检查梯度值是否出现nan或inf值，当连续incr_every_n_steps次迭代均未出现nan和inf值时，将init_loss_scaling的值乘以一个因子：incr_ratio；当连续decr_every_n_steps次迭代均出现nan和inf值时，将init_loss_scaling的值除以一个因子：decr_ratio。  
   
-同时，某些算子不适合采用 FP16 参与计算，因为这类算子采用 FP16 进行计算容易出现nan或者inf值。为了解决这个问题，通常采用黑名单和白名单机制。其中，黑名单中放置不宜采用 FP16 进行计算的算子，白名单中放置适合采用 FP16 进行计算的算子。  
+同时，某些算子不适合采用 FP16 参与计算，因为这类算子采用 FP16 进行计算容易出现nan或者inf值。为了解决这个问题，通常采用黑名单和白名单机制。其中，黑名单中放置不宜采用 FP16 进行计算的算子，如softmax, cross_entropy等；白名单中放置适合采用 FP16 进行计算的算子，如conv2d，matmul等。  
 
 ### 2、pure FP16原理
 
