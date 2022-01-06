@@ -7,7 +7,7 @@ FP16训练可以带来以下好处：
 3. 加速GPU数学运算速度 (需要GPU支持[[1]](https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#tensorop))；按照NVIDA数据，GPU上FP16计算吞吐量是FP32的2~8倍[[2]](https://arxiv.org/abs/1710.03740)。  
 
 ## 一、半精度浮点类型 FP16
-首先介绍半精度（FP16）。如下图所示，半精度浮点数是一种相对较新的浮点类型，在计算机中使用2字节（16比特）存储。在IEEE 754-2008标准中，它亦被称作binary16。FP32 是单精度浮点数，用8bit 表示指数，23bit 表示小数；FP16半精度浮点数，用5bit 表示指数，10bit 表示小数。FP16 的动态范围（6x10<sup>-8</sup> ~ 65504）远低于 FP32 的动态范围（1.4x10<sup>-45</sup> ~ 1.7x10<sup>+38</sup>），并且 FP16 的精度（2<sup>-10</sup>）远低于 FP32 的精度（2<sup>-23</sup>），因此FP16更适于在精度要求不高的场景中使用。  
+首先介绍半精度（FP16）。如下图所示，半精度浮点数是一种相对较新的浮点类型，在计算机中使用2字节（16比特）存储。在IEEE 754-2008标准中，它亦被称作binary16。FP32 是单精度浮点数，用8bit 表示指数，23bit 表示小数；FP16半精度浮点数，用5bit 表示指数，10bit 表示小数。FP16 的动态范围（6x10<sup>-8</sup> ~ 65504）远低于 FP32 的动态范围（1.4x10<sup>-45</sup> ~ 1.7x10<sup>+38</sup>），并且 FP16 的精度（2<sup>-10</sup>）远粗于 FP32 的精度（2<sup>-23</sup>），因此FP16更适于在精度要求不高的场景中使用。  
 <div  align="center">  
 <img src="./imgs/half_precision.png" width = "400"  align=center />  
 </div>
