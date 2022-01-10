@@ -7,7 +7,7 @@ FP16训练可以带来以下好处：
 3. 加速GPU数学运算速度 (需要GPU支持[[1]](https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#tensorop))；按照NVIDA数据，GPU上FP16计算吞吐量是FP32的2~8倍[[2]](https://arxiv.org/abs/1710.03740)。  
 
 ## 一、半精度浮点类型 FP16
-首先介绍半精度（FP16）。如下图所示，半精度浮点数是一种相对较新的浮点类型，在计算机中使用2字节（16比特）存储。在IEEE 754-2008标准中，它亦被称作binary16。FP32 是单精度浮点数，用8bit 表示指数，23bit 表示小数；FP16半精度浮点数，用5bit 表示指数，10bit 表示小数。FP16 的动态范围（2<sup>-24</sup> ~ 65504）远低于 FP32 的动态范围（约1.4x10<sup>-45</sup> ~ 3.4x10<sup>+38</sup>），并且 FP16 的精度（2<sup>-10</sup>）远粗于 FP32 的精度（2<sup>-23</sup>），因此FP16更适于在精度要求不高的场景中使用。  
+首先介绍半精度（FP16）。如下图所示，半精度浮点数是一种相对较新的浮点类型，在计算机中使用2字节（16比特）存储。在IEEE 754-2008标准中，它亦被称作binary16。FP32 是单精度浮点数，用8bit 表示指数，23bit 表示小数；FP16半精度浮点数，用5bit 表示指数，10bit 表示小数。FP16 的动态范围[2<sup>-24</sup>, 65504]远低于 FP32 的动态范围[ 2<sup>-149</sup>, ~3.4x10<sup>+38</sup>]，并且 FP16 的精度（2<sup>-10</sup>）远粗于 FP32 的精度（2<sup>-23</sup>），因此FP16更适于在精度要求不高的场景中使用。  
 <div  align="center">  
 <img src="./imgs/half_precision.png" width = "400"  align=center />  
 </div>
@@ -19,12 +19,13 @@ FP16训练可以带来以下好处：
 - FP16可以充分利用英伟达Volta及Turing架构GPU提供的Tensor Cores技术。在相同的GPU硬件上，Tensor Cores的FP16计算吞吐量是FP32的8倍。  
   
 ## 三、混合精度训练原理
-### 1、AMP原理
-使用AMP训练时，模型参数使用 FP32 格式存储，在实际计算时，模型参数从 FP32 转换为 FP16 参与前向计算，并得到 FP16 表示中间状态和模型的loss值，然后使用 FP16 计算梯度，并将参数对应的梯度转换为 FP32 格式后，更新模型参数。计算过程如下图所示。  
+使用AMP(自动混合精度)训练时，模型参数使用 FP32 格式存储，在实际计算时，模型参数从 FP32 转换为 FP16 参与前向计算，并得到 FP16 表示中间状态和模型的loss值，然后使用 FP16 计算梯度，并将参数对应的梯度转换为 FP32 格式后，更新模型参数。计算过程如下图所示。  
 <div  align="center">  
 <img src="./imgs/amp_arch.png" width = "600"  align=center />  
 </div>  
   
+AMP模式下，模型参数使用FP32格式，并且存在大量的cast操作，为了进一步节省显存和提高效率，引入pure FP16，即模型参数使用FP16格式，减少了AMP的所有cast操作。
+
 通常 FP16 的表示范围远小于 FP32 的表示范围，在深度学习领域，参数、中间状态和梯度的值通常很小，因此以 FP16 参与计算时容易出现数值下溢，即接近零的值下溢为零值。为了避免这个问题，通常采用loss scaling机制。具体地讲，对loss乘以一个称为loss_scaling的值，根据链式法则，在反向传播过程中，梯度也等价于相应的乘以了loss_scaling的值，因此在参数更新时需要将梯度值相应地除以loss_scaling的值。
   
 然而，在模型训练过程中，选择合适的loss_scaling的值是个较大的挑战。因此，需要采用一种称为动态loss scaling的机制。用户只需要为loss_scaling设置一个初始值：init_loss_scaling。在训练过程中，会检查梯度值是否出现nan或inf值，当连续incr_every_n_steps次迭代均未出现nan和inf值时，将init_loss_scaling的值乘以一个因子：incr_ratio；当连续decr_every_n_steps次迭代均出现nan和inf值时，将init_loss_scaling的值除以一个因子：decr_ratio。  
